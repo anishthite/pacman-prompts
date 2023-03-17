@@ -1,0 +1,25 @@
+Prompts:
+  thinker_prompt:
+    prompt: |- # this is a multiline way of writing strings 
+      You are a large language model.
+      Context:\ {context}
+      {question}
+      A:\ Let's think step by step
+    inputs: [context, question]
+    config:
+      llm: "text-davinci-003" 
+      max_tokens: 100
+      temperature: 0.8
+      top_p: 0.9
+  final_prompt:
+      prompt: |- # this is a multiline way of writing strings 
+        You are a large language model.
+        {question}
+        Reasoning:\ {reasoning}
+        A:\
+      inputs: [question, reasoning]
+      config:
+        llm: "text-davinci-003" 
+        max_tokens: 100
+        temperature: 0.8
+        top_p: 0.9
