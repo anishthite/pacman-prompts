@@ -18,7 +18,7 @@ Prompts:
       A:\ Let's think step by step
     inputs: [context, question]
     config:
-      llm: "text-davinci-003" 
+      model: "text-davinci-003" 
       max_tokens: 100
       temperature: 0.8
       top_p: 0.9
@@ -30,7 +30,7 @@ Prompts:
         A:\
       inputs: [question, reasoning]
       config:
-        llm: "text-davinci-003" 
+        model: "text-davinci-003" 
         max_tokens: 100
         temperature: 0.8
         top_p: 0.9

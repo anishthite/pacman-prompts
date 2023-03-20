@@ -1,14 +1,14 @@
 from setuptools import setup, find_packages
 
 setup(
-  name = 'pacman',
+  name = 'pacman-prompts',
   packages = find_packages(exclude=['examples']),
-  version = '1.0.0',
+  version = '1.1.0',
   license='MIT',
   description = 'Prompts As Code, man',
   long_description_content_type = 'text/markdown',
-  author = 'Phil Wang',
-  author_email = 'lucidrains@gmail.com',
+  author = 'Anish Thite',
+  author_email = 'anishthite@gmail.com',
   url = 'https://github.com/anishthite/pacman',
   keywords = [
     'artificial intelligence',

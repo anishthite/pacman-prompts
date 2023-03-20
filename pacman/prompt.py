@@ -4,14 +4,13 @@ import os
 
 openai.api_key = os.getenv('OPENAI_API_KEY')
 if openai.api_key is None:
-    openai.api_key = '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'
-
+    raise Exception("OpenAI API key not set")
 
 class PromptConfig:
     def __init__(self, config):
-        self.max_tokens = config['max_tokens']
-        self.temperature = config['temperature']
-        self.top_p = config['top_p']
+        #set attributes from config
+        for name, value in config.items():
+            setattr(self, name, value)
 
 class Prompt:
     def __init__(self, prompt, config):
@@ -29,11 +28,8 @@ class Prompt:
             print(complete_prompt)
         #run in language model
         res = openai.Completion.create(
-            model='text-davinci-003',
             prompt=complete_prompt,
-            max_tokens=self.config.max_tokens,
-            temperature=self.config.temperature,
-            top_p=self.config.top_p
+            **self.config.__dict__
             #stop='\n'
         )
         return res['choices'][0]['text']
