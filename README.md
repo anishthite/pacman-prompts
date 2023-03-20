@@ -67,13 +67,11 @@ Another benefit of moving prompts to YAML files is that it's easy to move prompt
 Also, procrastination
 
 ## Install
-
-1. Clone repo
-2. Run `pip install .`
+`pip install pacman-prompts`
 
 ## Roadmap:
 
-[] publish package
+[x] publish package
 [] type checking on prompt inputs
-[]
+
 
