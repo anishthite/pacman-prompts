@@ -32,7 +32,7 @@ class Prompt:
             **self.config.__dict__
             #stop='\n'
         )
-        return res['choices'][0]['text']
+        return res
         #return output
 
 
