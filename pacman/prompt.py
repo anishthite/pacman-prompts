@@ -42,4 +42,19 @@ class Prompt:
 def load_prompt(loaded_file):
     prompt = Prompt(**loaded_file)
 
+#make copy of Prompt class but use ChatCompletion in run method
+class ChatPrompt(Prompt):
+    def run(self, inputs, **kwargs):
+        #format string
+        complete_prompt = self.compile(inputs)
+        if  kwargs.get('debug', True):
+            print(complete_prompt)
+        #run in language model
+        res = openai.ChatCompletion.create(
+            messages=[{"role": "user","content": complete_prompt}],
+            **self.config.__dict__
+            #stop='\n'
+        )
+        return res
+        #return output
 
