@@ -47,11 +47,17 @@ class ChatPrompt(Prompt):
         #format string
         complete_prompt = self.compile(inputs)
 
+
+        if kwargs.get('initial_role', None):
+            initial_message_list = [{"role": kwargs['initial_role'],"content": complete_prompt}]
+        else:
+            initial_message_list = [{"role": "user","content": complete_prompt}]
+
         #if messages passed in add the system prompt to the beginning
         if kwargs.get('messages', None):
-            messages = [{"role": "system","content": complete_prompt}] + kwargs['messages']
+            messages = initial_message_list + kwargs['messages']
         else:
-            messages = [{"role": "system","content": complete_prompt}]
+            messages = initial_message_list 
 
 
         #TODO: fix the inut s . its flat
