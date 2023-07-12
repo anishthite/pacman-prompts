@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 setup(
   name = 'pacman-prompts',
   packages = find_packages(exclude=['examples']),
-  version = '1.3.2',
+  version = '1.4.5',
   license='MIT',
   description = 'Prompts As Code, man',
   long_description_content_type = 'text/markdown',
@@ -17,6 +17,9 @@ setup(
   ],
   install_requires=[
       'pyyaml',
+      'openai',
+      'reliableGPT==0.2.981',
+      'posthog'
   ],
   setup_requires=[
   ],

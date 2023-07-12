@@ -1,10 +1,17 @@
 # defines an llm prompt class
 import openai
 import os
+from reliablegpt import reliableGPT
 
 openai.api_key = os.getenv('OPENAI_API_KEY')
 if openai.api_key is None:
     raise Exception("OpenAI API key not set")
+
+openai.ChatCompletion.create = reliableGPT(openai.ChatCompletion.create,
+    user_email='claros@claros.so',
+    #model_limits_dir = {"gpt-3.5-turbo-0613": {"max_token_capacity": 90000, "max_request_capacity": 3500}},
+    fallback_strategy=['gpt-3.5-turbo-0613', 'gpt-3.5-turbo-0613', 'gpt-3.5-turbo', 'gpt-3.5-turbo-16k'],
+    caching=False)
 
 class PromptConfig:
     def __init__(self, config):
