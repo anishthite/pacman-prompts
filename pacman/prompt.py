@@ -1,10 +1,8 @@
 # defines an llm prompt class
-import openai
 import os
+from openai import OpenAI
 
-openai.api_key = os.getenv('OPENAI_API_KEY')
-if openai.api_key is None:
-    raise Exception("OpenAI API key not set")
+client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
 
 # openai.ChatCompletion.create = reliableGPT(openai.ChatCompletion.create,
 #     user_email='claros@claros.so',
@@ -32,7 +30,7 @@ class Prompt:
         if  kwargs.get('debug', True):
             print(complete_prompt)
         #run in language model
-        res = openai.Completion.create(
+        res = client.completions.create(
             prompt=complete_prompt,
             **self.config.__dict__
             #stop='\n'
@@ -94,7 +92,8 @@ class ChatPrompt(Prompt):
             print("complete prompt:")
             print(messages)
 
-        res = openai.ChatCompletion.create(
+
+        res = client.chat.completions.create(
             messages=messages,
             **self.config.__dict__
             #stop='\n'
