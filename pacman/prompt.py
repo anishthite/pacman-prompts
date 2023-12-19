@@ -51,19 +51,25 @@ class Prompt:
         return res
         #return output
 
+    def __call__(self, *args, system_inputs=None, user_inputs=None, **kwargs):
+        
+        if len(args) == 0:
+            return self.run(system_inputs=system_inputs, user_inputs=user_inputs, **kwargs)
+        
+        if len(args) == 1:
+            return self.run(user_inputs=args[0], **kwargs)
 
-    def __call__(self, system_inputs=None, user_inputs=None, **kwargs):
-        return self.run(system_inputs=system_inputs, user_inputs=user_inputs, **kwargs)
+        raise ValueError("Invalid number of arguments for __call__ method.")
 
 def load_prompt(loaded_file):
     prompt = Prompt(**loaded_file)
 
 #make copy of Prompt class but use ChatCompletion in run method
 class ChatPrompt(Prompt):
+
     def run(self, system_inputs=None, user_inputs=None, **kwargs):
         #format string
-        print(system_inputs)
-        print(user_inputs)
+        print("g")
         if hasattr(self, 'system_prompt'):
             system_prompt = self.system_prompt.format(**system_inputs)
         if hasattr(self, 'user_prompt'):

@@ -12,7 +12,7 @@ def QAchain(context, question):
     reasoning = thinker_prompt(system_inputs=system_input, user_inputs=user_input, debug=True)
     
     user_input = {'question': question, 'reasoning': reasoning}
-    out = final_prompt(user_inputs=user_input, debug=True)
+    out = final_prompt(user_input, debug=True)
     return out
 
 QAchain('I have a sister named Anna, Anna has a sister named Elsa', 'How many sisters do I have?')
