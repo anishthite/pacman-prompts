@@ -1,25 +1,30 @@
-Prompts:
+ChatPrompts:
   thinker_prompt:
-    prompt: |- # this is a multiline way of writing strings 
-      You are a large language model.
-      Context:\ {context}
-      {question}
-      A:\ Let's think step by step
-    inputs: [context, question]
+    prompts:
+      system: |- 
+        You are a large language model.
+        Your name is {name}
+      inputs: [name]
+      user: |- 
+        Context:\ {context}
+        {question}
+        A:\ Let's think step by step
+      inputs: [context, question]
     config:
-      model: "text-davinci-003" 
+      model: "gpt-3.5-turbo" 
       max_tokens: 100
       temperature: 0.8
       top_p: 0.9
+  # This is the old way (backwards compatible)
   final_prompt:
-      prompt: |- # this is a multiline way of writing strings 
-        You are a large language model.
-        {question}
-        Reasoning:\ {reasoning}
-        A:\
-      inputs: [question, reasoning]
-      config:
-        model: "text-davinci-003" 
-        max_tokens: 100
-        temperature: 0.8
-        top_p: 0.9
+    prompt: |- # this is a multiline way of writing strings 
+      You are a large language model.
+      {question}
+      Reasoning:\ {reasoning}
+      A:\
+    inputs: [question, reasoning]
+    config:
+      model: "gpt-3.5-turbo" 
+      max_tokens: 100
+      temperature: 0.8
+      top_p: 0.9

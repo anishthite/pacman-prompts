@@ -9,10 +9,13 @@ def load(yaml_path):
     prompt_collection = {} 
     if 'Prompts' in parsed_file:
         for name, config in parsed_file['Prompts'].items():
-            prompt_collection[name] = Prompt(config['prompt'], config['config'])
+            prompt_collection[name] = Prompt(config['prompts'], config['config'])
     if 'ChatPrompts' in parsed_file:
         for name, config in parsed_file['ChatPrompts'].items():
-            prompt_collection[name] = ChatPrompt(config['prompt'], config['config'])
+            if 'prompts' in config:
+                prompt_collection[name] = ChatPrompt(config['prompts'], config['config'])
+            else:
+                prompt_collection[name] = ChatPrompt(config['prompt'], config['config'])
     return prompt_collection
 
 def load_folder(folder_path):
