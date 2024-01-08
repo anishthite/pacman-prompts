@@ -1,8 +1,18 @@
 # defines an llm prompt class
 import os
-from openai import OpenAI
+from dotenv import load_dotenv
+# Load environment variables from .env file
+load_dotenv()
+import openai
 
-client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+
+
+openai_client = openai.OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+
+anyscale_client =  openai.OpenAI(
+                base_url="https://api.endpoints.anyscale.com/v1",
+                api_key=os.environ["MISTRAL_API_KEY"]
+            )
 
 # openai.ChatCompletion.create = reliableGPT(openai.ChatCompletion.create,
 #     user_email='claros@claros.so',
@@ -23,8 +33,8 @@ class Prompt:
 
         if type(prompts) == str:
             self.user_prompt = prompts
-            return 
-        
+            return
+
         if 'system' not in prompts and 'user' not in prompts:
             raise Exception("Prompt must have either system prompt or user prompt")
         if 'system' in prompts:
@@ -43,7 +53,7 @@ class Prompt:
         if  kwargs.get('debug', True):
             print(complete_prompt)
         #run in language model
-        res = client.completions.create(
+        res = openai_client.completions.create(
             prompt=complete_prompt,
             **self.config.__dict__
             #stop='\n'
@@ -52,10 +62,10 @@ class Prompt:
         #return output
 
     def __call__(self, *args, system_inputs=None, user_inputs=None, **kwargs):
-        
+
         if len(args) == 0:
             return self.run(system_inputs=system_inputs, user_inputs=user_inputs, **kwargs)
-        
+
         if len(args) == 1:
             return self.run(user_inputs=args[0], **kwargs)
 
@@ -89,14 +99,13 @@ class ChatPrompt(Prompt):
         if kwargs.get('messages', None):
             messages = initial_message_list + kwargs['messages']
         else:
-            messages = initial_message_list 
-
+            messages = initial_message_list
 
         #TODO: fix the inut s . its flat
         #TODO: make this all creatable inside the yaml config
         #TODO: messages is a reserved kwarg, so dont put it in a prompt
         #run in language model
-        
+
         # if self.config['stream'] == True:
         #     try:
         #         resp = ''
@@ -121,9 +130,19 @@ class ChatPrompt(Prompt):
             print(messages)
 
 
-        res = client.chat.completions.create(
-            messages=messages,
-            **self.config.__dict__
-            #stop='\n'
-        )
+        # [existing code to prepare messages]
+
+        # Conditional API call based on provider
+        if self.config.provider == "openai" or not hasattr(self.config, 'provider'):
+            res = openai_client.chat.completions.create(
+                messages=messages,
+                **self.config.__dict__
+                #stop='\n'
+            )
+        elif self.config.provider == "anyscale":
+            res = anyscale_client.chat.completions.create(
+                model=self.config.__dict__["model"],
+                messages=messages,
+                temperature=0.7
+            )
         return res
