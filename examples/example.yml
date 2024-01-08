@@ -1,30 +1,32 @@
 ChatPrompts:
   thinker_prompt:
     prompts:
-      system: |- 
+      system: |-
         You are a large language model.
         Your name is {name}
       inputs: [name]
-      user: |- 
+      user: |-
         Context:\ {context}
         {question}
         A:\ Let's think step by step
       inputs: [context, question]
     config:
-      model: "gpt-3.5-turbo" 
+      provider: anyscale
+      model: mistralai/Mixtral-8x7B-Instruct-v0.1
       max_tokens: 100
       temperature: 0.8
       top_p: 0.9
   # This is the old way (backwards compatible)
   final_prompt:
-    prompt: |- # this is a multiline way of writing strings 
+    prompt: |- # this is a multiline way of writing strings
       You are a large language model.
       {question}
       Reasoning:\ {reasoning}
       A:\
     inputs: [question, reasoning]
     config:
-      model: "gpt-3.5-turbo" 
+      provider: anyscale
+      model: mistralai/Mixtral-8x7B-Instruct-v0.1
       max_tokens: 100
       temperature: 0.8
       top_p: 0.9
