@@ -79,7 +79,6 @@ class ChatPrompt(Prompt):
 
     def run(self, system_inputs=None, user_inputs=None, **kwargs):
         #format string
-        print("g")
         if hasattr(self, 'system_prompt'):
             system_prompt = self.system_prompt.format(**system_inputs)
         if hasattr(self, 'user_prompt'):
@@ -141,8 +140,7 @@ class ChatPrompt(Prompt):
             )
         elif self.config.provider == "anyscale":
             res = anyscale_client.chat.completions.create(
-                model=self.config.__dict__["model"],
                 messages=messages,
-                temperature=0.7
+                **self.config.__dict__
             )
         return res
