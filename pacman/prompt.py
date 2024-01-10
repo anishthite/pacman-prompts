@@ -31,6 +31,12 @@ class Prompt:
 
         self.config = PromptConfig(config)
 
+        if 'provider' in config:
+            self.provider = config['provider']
+            del config['provider']
+        else:
+            self.provider = 'openai'
+
         if type(prompts) == str:
             self.user_prompt = prompts
             return
@@ -132,13 +138,13 @@ class ChatPrompt(Prompt):
         # [existing code to prepare messages]
 
         # Conditional API call based on provider
-        if self.config.provider == "openai" or not hasattr(self.config, 'provider'):
+        if self.provider == "openai":
             res = openai_client.chat.completions.create(
                 messages=messages,
                 **self.config.__dict__
                 #stop='\n'
             )
-        elif self.config.provider == "anyscale":
+        elif self.provider == "anyscale":
             res = anyscale_client.chat.completions.create(
                 model=self.config.__dict__["model"],
                 messages=messages,
