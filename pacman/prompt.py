@@ -146,8 +146,7 @@ class ChatPrompt(Prompt):
             )
         elif self.provider == "anyscale":
             res = anyscale_client.chat.completions.create(
-                model=self.config.__dict__["model"],
                 messages=messages,
-                temperature=self.config.__dict__["temperature"]
+                **self.config.__dict__
             )
         return res
