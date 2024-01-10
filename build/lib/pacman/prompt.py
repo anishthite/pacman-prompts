@@ -1,8 +1,8 @@
 # defines an llm prompt class
 import os
-# from dotenv import load_dotenv
-# # Load environment variables from .env file
-# load_dotenv()
+from dotenv import load_dotenv
+# Load environment variables from .env file
+load_dotenv()
 import openai
 
 
@@ -132,14 +132,17 @@ class ChatPrompt(Prompt):
 
 
         # [existing code to prepare messages]
+        print(self.config.__dict__)
         # Conditional API call based on provider
         if self.provider == "openai":
+            print("openai endpoint")
             res = openai_client.chat.completions.create(
                 messages=messages,
                 **self.config.__dict__
                 #stop='\n'
             )
         elif self.provider == "anyscale":
+            print("anyscale endpoint")
             res = anyscale_client.chat.completions.create(
                 messages=messages,
                 **self.config.__dict__
