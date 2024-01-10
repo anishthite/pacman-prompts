@@ -1,0 +1,18 @@
+Metadata-Version: 2.1
+Name: pacman-prompts
+Version: 2.1.0
+Summary: Prompts As Code, man
+Home-page: https://github.com/anishthite/pacman
+Author: Anish Thite
+Author-email: anishthite@gmail.com
+License: MIT
+Keywords: artificial intelligence,attention mechanism,image recognition
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: Topic :: Scientific/Engineering :: Artificial Intelligence
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3.6
+Description-Content-Type: text/markdown
+Requires-Dist: pyyaml
+Requires-Dist: openai
+Requires-Dist: posthog

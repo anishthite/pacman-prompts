@@ -1,0 +1,11 @@
+README.md
+setup.py
+pacman/__init__.py
+pacman/file_utils.py
+pacman/pacman.py
+pacman/prompt.py
+pacman_prompts.egg-info/PKG-INFO
+pacman_prompts.egg-info/SOURCES.txt
+pacman_prompts.egg-info/dependency_links.txt
+pacman_prompts.egg-info/requires.txt
+pacman_prompts.egg-info/top_level.txt
