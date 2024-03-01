@@ -13,6 +13,3 @@ Classifier: Topic :: Scientific/Engineering :: Artificial Intelligence
 Classifier: License :: OSI Approved :: MIT License
 Classifier: Programming Language :: Python :: 3.6
 Description-Content-Type: text/markdown
-Requires-Dist: pyyaml
-Requires-Dist: openai
-Requires-Dist: posthog
