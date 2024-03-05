@@ -87,7 +87,9 @@ class ChatPrompt(Prompt):
             user_prompt = self.user_prompt.format(**user_inputs)
 
 # if system and user add them as messages, otherwise add the one that exists
-        if hasattr(self, 'system_prompt') and hasattr(self, 'user_prompt'):
+        if kwargs.get('few_shot', False) and hasattr(self, 'system_prompt') and hasattr(self, 'user_prompt'):
+            initial_message_list = [{"role": "system","content": system_prompt}] + kwargs.get('messages', []) + [{"role": "user","content": user_prompt}]
+        elif hasattr(self, 'system_prompt') and hasattr(self, 'user_prompt'):
             initial_message_list = [{"role": "system","content": system_prompt},{"role": "user","content": user_prompt}]
         elif hasattr(self, 'system_prompt'):
             initial_message_list = [{"role": "system","content": system_prompt}]
@@ -97,7 +99,7 @@ class ChatPrompt(Prompt):
             raise Exception("Prompt must have either system_prompt or user_prompt")
 
         #if messages passed in add the system prompt to the beginning
-        if kwargs.get('messages', None):
+        if kwargs.get('messages', None) and not kwargs.get('few_shot', False):
             messages = initial_message_list + kwargs['messages']
         else:
             messages = initial_message_list
