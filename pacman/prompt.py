@@ -86,7 +86,7 @@ class ChatPrompt(Prompt):
         if hasattr(self, 'user_prompt'):
             user_prompt = self.user_prompt.format(**user_inputs)
 
-# if system and user add them as messages, otherwise add the one that exists
+	#  if system and user add them as messages, otherwise add the one that exists
         if kwargs.get('few_shot', False) and hasattr(self, 'system_prompt') and hasattr(self, 'user_prompt'):
             initial_message_list = [{"role": "system","content": system_prompt}] + kwargs.get('messages', []) + [{"role": "user","content": user_prompt}]
         elif hasattr(self, 'system_prompt') and hasattr(self, 'user_prompt'):

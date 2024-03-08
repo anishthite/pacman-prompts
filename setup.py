@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 setup(
   name = 'pacman-prompts',
   packages = find_packages(exclude=['examples']),
-  version = '2.1.0',
+  version = '2.1.5',
   license='MIT',
   description = 'Prompts As Code, man',
   long_description_content_type = 'text/markdown',

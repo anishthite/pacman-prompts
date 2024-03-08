@@ -1,8 +1,8 @@
 # defines an llm prompt class
 import os
-from dotenv import load_dotenv
-# Load environment variables from .env file
-load_dotenv()
+# from dotenv import load_dotenv
+# # Load environment variables from .env file
+# load_dotenv()
 import openai
 
 
@@ -86,8 +86,10 @@ class ChatPrompt(Prompt):
         if hasattr(self, 'user_prompt'):
             user_prompt = self.user_prompt.format(**user_inputs)
 
-# if system and user add them as messages, otherwise add the one that exists
-        if hasattr(self, 'system_prompt') and hasattr(self, 'user_prompt'):
+	#  if system and user add them as messages, otherwise add the one that exists
+        if kwargs.get('few_shot', False) and hasattr(self, 'system_prompt') and hasattr(self, 'user_prompt'):
+            initial_message_list = [{"role": "system","content": system_prompt}] + kwargs.get('messages', []) + [{"role": "user","content": user_prompt}]
+        elif hasattr(self, 'system_prompt') and hasattr(self, 'user_prompt'):
             initial_message_list = [{"role": "system","content": system_prompt},{"role": "user","content": user_prompt}]
         elif hasattr(self, 'system_prompt'):
             initial_message_list = [{"role": "system","content": system_prompt}]
@@ -97,7 +99,7 @@ class ChatPrompt(Prompt):
             raise Exception("Prompt must have either system_prompt or user_prompt")
 
         #if messages passed in add the system prompt to the beginning
-        if kwargs.get('messages', None):
+        if kwargs.get('messages', None) and not kwargs.get('few_shot', False):
             messages = initial_message_list + kwargs['messages']
         else:
             messages = initial_message_list
@@ -132,17 +134,14 @@ class ChatPrompt(Prompt):
 
 
         # [existing code to prepare messages]
-        print(self.config.__dict__)
         # Conditional API call based on provider
         if self.provider == "openai":
-            print("openai endpoint")
             res = openai_client.chat.completions.create(
                 messages=messages,
                 **self.config.__dict__
                 #stop='\n'
             )
         elif self.provider == "anyscale":
-            print("anyscale endpoint")
             res = anyscale_client.chat.completions.create(
                 messages=messages,
                 **self.config.__dict__
