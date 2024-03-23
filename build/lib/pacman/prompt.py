@@ -4,6 +4,7 @@ import os
 # # Load environment variables from .env file
 # load_dotenv()
 import openai
+import anthropic
 
 
 
@@ -13,6 +14,10 @@ anyscale_client =  openai.OpenAI(
                 base_url="https://api.endpoints.anyscale.com/v1",
                 api_key=os.environ["MISTRAL_API_KEY"]
             )
+
+anthropic_client = anthropic.Anthropic(
+    api_key=os.environ["ANTHROPIC_API_KEY"],
+)
 
 # openai.ChatCompletion.create = reliableGPT(openai.ChatCompletion.create,
 #     user_email='claros@claros.so',
@@ -146,4 +151,30 @@ class ChatPrompt(Prompt):
                 messages=messages,
                 **self.config.__dict__
             )
+        elif self.provider == "anthropic":
+            if messages and messages[0]['role'] == 'system':
+                msgs = []
+                if len(messages) > 1:
+                    msgs = messages[1:]
+                system_content = messages[0]['content']
+                res = anthropic_client.chat.completions.create(
+                    system=system_content,
+                    messages=msgs
+                    **self.config.__dict__
+                )
+            else:
+                res = anthropic_client.chat.completions.create(
+                    messages=messages,
+                    **self.config.__dict__
+                )
+            # message = client.messages.create(
+            #     model="claude-3-opus-20240229",
+            #     max_tokens=1024,
+            #     messages=[],
+            #     stop_sequences=[],
+            #     metadata={},
+            #     stream=False,
+            #     temperature=0,
+            #     top_p=0,
+            #     top_k=0)
         return res
