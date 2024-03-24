@@ -157,13 +157,13 @@ class ChatPrompt(Prompt):
                 if len(messages) > 1:
                     msgs = messages[1:]
                 system_content = messages[0]['content']
-                res = anthropic_client.chat.completions.create(
+                res = anthropic_client.messages.create(
                     system=system_content,
                     messages=msgs
                     **self.config.__dict__
                 )
             else:
-                res = anthropic_client.chat.completions.create(
+                res = anthropic_client.messages.create(
                     messages=messages,
                     **self.config.__dict__
                 )
