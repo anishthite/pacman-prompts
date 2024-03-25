@@ -1,6 +1,6 @@
 # load yml and initialize the prompts
 from .file_utils import load_yml
-from .prompt import Prompt, ChatPrompt
+from .prompt import Prompt, ChatPrompt, InstuctorPrompt
 import os
 
 def load(yaml_path):
@@ -16,6 +16,13 @@ def load(yaml_path):
                 prompt_collection[name] = ChatPrompt(config['prompts'], config['provider'], config['config'])
             else:
                 prompt_collection[name] = ChatPrompt(config['prompt'], config['provider'], config['config'])
+    if 'InstructorPrompts' in parsed_file:
+        for name, config in parsed_file['InstructorPrompts'].items():
+            if 'prompts' in config:
+                prompt_collection[name] = InstuctorPrompt(config['prompts'], config['provider'], config['config'])
+            else:
+                prompt_collection[name] = ChatPrompt(config['prompt'], config['provider'], config['config'])
+
     return prompt_collection
 
 def load_folder(folder_path):

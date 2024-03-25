@@ -5,7 +5,7 @@ import os
 # load_dotenv()
 import openai
 import anthropic
-
+import instructor
 
 
 openai_client = openai.OpenAI(api_key=os.environ["OPENAI_API_KEY"])
@@ -18,6 +18,7 @@ anyscale_client =  openai.OpenAI(
 anthropic_client = anthropic.Anthropic(
     api_key=os.environ["ANTHROPIC_API_KEY"],
 )
+instructor_client = instructor.patch(openai.OpenAI(api_key=os.environ["OPENAI_API_KEY"]))
 
 # openai.ChatCompletion.create = reliableGPT(openai.ChatCompletion.create,
 #     user_email='claros@claros.so',
@@ -84,30 +85,31 @@ def load_prompt(loaded_file):
 #make copy of Prompt class but use ChatCompletion in run method
 class ChatPrompt(Prompt):
 
-    def run(self, system_inputs=None, user_inputs=None, **kwargs):
-        #format string
+    def format_messages(self, system_inputs=None, user_inputs=None, **kwargs):
         if hasattr(self, 'system_prompt'):
             system_prompt = self.system_prompt.format(**system_inputs)
         if hasattr(self, 'user_prompt'):
             user_prompt = self.user_prompt.format(**user_inputs)
 
-	#  if system and user add them as messages, otherwise add the one that exists
+        initial_message_list = []
+        
+        if hasattr(self, 'system_prompt'):
+            initial_message_list.append({"role": "system", "content": system_prompt})
         if kwargs.get('few_shot', False) and hasattr(self, 'system_prompt') and hasattr(self, 'user_prompt'):
-            initial_message_list = [{"role": "system","content": system_prompt}] + kwargs.get('messages', []) + [{"role": "user","content": user_prompt}]
-        elif hasattr(self, 'system_prompt') and hasattr(self, 'user_prompt'):
-            initial_message_list = [{"role": "system","content": system_prompt},{"role": "user","content": user_prompt}]
-        elif hasattr(self, 'system_prompt'):
-            initial_message_list = [{"role": "system","content": system_prompt}]
-        elif hasattr(self, 'user_prompt'):
-            initial_message_list = [{"role": "user","content": user_prompt}]
-        else:
-            raise Exception("Prompt must have either system_prompt or user_prompt")
+            initial_message_list.extend(kwargs.get('messages', []))
+        if hasattr(self, 'user_prompt'):
+            initial_message_list.append({"role": "user", "content": user_prompt})
 
-        #if messages passed in add the system prompt to the beginning
         if kwargs.get('messages', None) and not kwargs.get('few_shot', False):
             messages = initial_message_list + kwargs['messages']
         else:
             messages = initial_message_list
+        
+        return messages
+
+    def run(self, system_inputs=None, user_inputs=None, **kwargs):
+        
+        messages = self.format_messages(system_inputs=system_inputs, user_inputs=user_inputs, **kwargs)
 
         #TODO: fix the inut s . its flat
         #TODO: make this all creatable inside the yaml config
@@ -132,14 +134,10 @@ class ChatPrompt(Prompt):
         #         return str(e)
         # else:
 
-
         if kwargs.get('debug', True):
             print("complete prompt:")
             print(messages)
 
-
-        # [existing code to prepare messages]
-        # Conditional API call based on provider
         if self.provider == "openai":
             res = openai_client.chat.completions.create(
                 messages=messages,
@@ -167,14 +165,29 @@ class ChatPrompt(Prompt):
                     messages=messages,
                     **self.config.__dict__
                 )
-            # message = client.messages.create(
-            #     model="claude-3-opus-20240229",
-            #     max_tokens=1024,
-            #     messages=[],
-            #     stop_sequences=[],
-            #     metadata={},
-            #     stream=False,
-            #     temperature=0,
-            #     top_p=0,
-            #     top_k=0)
         return res
+
+class InstuctorPrompt(ChatPrompt):
+    def run(self, system_inputs=None, user_inputs=None, response_model=None, **kwargs):
+        messages = self.format_messages(system_inputs=system_inputs, user_inputs=user_inputs, **kwargs)
+
+        if kwargs.get('debug', True):
+            print("complete prompt:")
+            print(messages)
+
+        res = instructor_client.chat.completions.create(
+            messages=messages,
+            response_model=response_model,
+            **self.config.__dict__
+        )
+        return res
+    
+    def __call__(self, *args, system_inputs=None, user_inputs=None, response_model=None, **kwargs):
+
+        if len(args) == 0:
+            return self.run(system_inputs=system_inputs, user_inputs=user_inputs, response_model=response_model, **kwargs)
+
+        if len(args) == 1:
+            return self.run(user_inputs=args[0], **kwargs)
+
+        raise ValueError("Invalid number of arguments for __call__ method.")
