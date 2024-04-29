@@ -18,7 +18,8 @@ setup(
   install_requires=[
       'pyyaml',
       'openai',
-      'posthog'
+      'posthog',
+      'groq'
   ],
   setup_requires=[
   ],
