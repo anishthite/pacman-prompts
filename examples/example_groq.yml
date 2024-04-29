@@ -1,0 +1,32 @@
+ChatPrompts:
+  thinker_prompt:
+    prompts:
+      system: |-
+        You are a large language model.
+        Your name is {name}
+      inputs: [name]
+      user: |-
+        Context:\ {context}
+        {question}
+        A:\ Let's think step by step
+      inputs: [context, question]
+    provider: groq 
+    config:
+      model: llama3-70b-8192
+      max_tokens: 100
+      temperature: 0.8
+      top_p: 0.9
+  # This is the old way (backwards compatible)
+  final_prompt:
+    prompt: |- # this is a multiline way of writing strings
+      You are a large language model.
+      {question}
+      Reasoning:\ {reasoning}
+      A:\
+    inputs: [question, reasoning]
+    provider: groq 
+    config:
+      model: llama3-70b-8192
+      max_tokens: 100
+      temperature: 0.8
+      top_p: 0.9

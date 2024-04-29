@@ -3,19 +3,12 @@ from dotenv import load_dotenv
 load_dotenv()
 
 import pacman.pacman as pacman
-from pydantic import BaseModel
-
-
-class Output(BaseModel):
-    reasoning: str
-    age: int
-
 
 # Initialize prompts
-prompts = pacman.load("./Instructor.yml")
+prompts = pacman.load("./example_groq.yml")
 
-
-thinker_prompt = prompts["instructor"]
+thinker_prompt = prompts["thinker_prompt"]
+final_prompt = prompts["final_prompt"]
 
 
 def QAchain(context, question):
@@ -25,20 +18,20 @@ def QAchain(context, question):
     ]
     system_input = {"name": "Claros"}
     user_input = {"context": context, "question": question}
-    response_model = thinker_prompt(
+    reasoning = thinker_prompt(
         system_inputs=system_input,
         user_inputs=user_input,
         messages=msgs,
         few_shot=True,
         debug=True,
-        response_model=Output,
     )
-    return response_model
+
+    user_input = {"question": question, "reasoning": reasoning}
+    out = final_prompt(user_input, debug=True)
+    return out
 
 
-resp = QAchain(
+QAchain(
     "I have a sister named Anna, Anna has a sister named Elsa",
     "How many sisters do I have?",
 )
-print(type(resp))
-print(resp)

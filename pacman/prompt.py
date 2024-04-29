@@ -6,6 +6,8 @@ import os
 import openai
 import anthropic
 import instructor
+from groq import Groq
+from enum import Enum
 
 
 openai_client = openai.OpenAI(api_key=os.environ["OPENAI_API_KEY"])
@@ -18,13 +20,19 @@ anyscale_client =  openai.OpenAI(
 anthropic_client = anthropic.Anthropic(
     api_key=os.environ["ANTHROPIC_API_KEY"],
 )
+
 instructor_client = instructor.patch(openai.OpenAI(api_key=os.environ["OPENAI_API_KEY"]))
 
-# openai.ChatCompletion.create = reliableGPT(openai.ChatCompletion.create,
-#     user_email='claros@claros.so',
-#     #model_limits_dir = {"gpt-3.5-turbo-0613": {"max_token_capacity": 90000, "max_request_capacity": 3500}},
-#     fallback_strategy=['gpt-3.5-turbo-0613', 'gpt-3.5-turbo-0613', 'gpt-3.5-turbo', 'gpt-3.5-turbo-16k'],
-#     caching=False)
+groq_client = Groq(
+    api_key=os.environ.get("GROQ_API_KEY"),
+)
+
+
+class Provider(Enum):
+    OPENAI = "openai"
+    ANYSCALE = "anyscale"
+    ANTHROPIC = "anthropic"
+    GROQ = "groq"
 
 class PromptConfig:
     def __init__(self, config):
@@ -138,18 +146,20 @@ class ChatPrompt(Prompt):
             print("complete prompt:")
             print(messages)
 
-        if self.provider == "openai":
+
+
+        if self.provider == Provider.OPENAI.value:
             res = openai_client.chat.completions.create(
                 messages=messages,
                 **self.config.__dict__
                 #stop='\n'
             )
-        elif self.provider == "anyscale":
+        elif self.provider == Provider.ANYSCALE.value:
             res = anyscale_client.chat.completions.create(
                 messages=messages,
                 **self.config.__dict__
             )
-        elif self.provider == "anthropic":
+        elif self.provider == Provider.ANTHROPIC.value:
             if messages and messages[0]['role'] == 'system':
                 msgs = []
                 if len(messages) > 1:
@@ -157,7 +167,7 @@ class ChatPrompt(Prompt):
                 system_content = messages[0]['content']
                 res = anthropic_client.messages.create(
                     system=system_content,
-                    messages=msgs
+                    messages=msgs,
                     **self.config.__dict__
                 )
             else:
@@ -165,6 +175,12 @@ class ChatPrompt(Prompt):
                     messages=messages,
                     **self.config.__dict__
                 )
+        elif self.provider == Provider.GROQ.value:
+            res = groq_client.chat.completions.create(
+                messages=messages,
+                **self.config.__dict__
+                #stop='\n'
+            )
         return res
 
 class InstuctorPrompt(ChatPrompt):
