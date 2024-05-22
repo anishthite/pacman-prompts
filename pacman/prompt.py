@@ -22,8 +22,16 @@ anthropic_client = anthropic.Anthropic(
     api_key=os.environ["ANTHROPIC_API_KEY"],
 )
 
-instructor_client = instructor.patch(
+instructor_openai_client = instructor.patch(
     openai.OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+)
+
+instructor_anthropic_client = instructor.from_anthropic(anthropic_client)
+
+instructor_anyscale_client = instructor.patch(openai.OpenAI(
+        base_url="https://api.endpoints.anyscale.com/v1",
+        api_key=os.environ["MISTRAL_API_KEY"],
+    ), mode=instructor.Mode.JSON_SCHEMA,
 )
 
 groq_client = Groq(
@@ -198,9 +206,21 @@ class InstuctorPrompt(ChatPrompt):
             print("complete prompt:")
             print(messages)
 
-        res = instructor_client.chat.completions.create(
-            messages=messages, response_model=response_model, **self.config.__dict__
-        )
+        if self.provider == Provider.OPENAI.value:
+            res = instructor_openai_client.chat.completions.create(
+                messages=messages, response_model=response_model, **self.config.__dict__
+            )
+
+        if self.provider == Provider.ANTHROPIC.value:
+            res = instructor_anthropic_client.messages.create(
+                messages=messages, response_model=response_model, **self.config.__dict__
+            )
+        
+        if self.provider == Provider.ANYSCALE.value:
+            res = instructor_anyscale_client.chat.completions.create(
+                messages=messages, response_model=response_model, **self.config.__dict__
+            )
+
         return res
 
     def __call__(

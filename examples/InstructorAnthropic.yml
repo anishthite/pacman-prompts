@@ -1,0 +1,18 @@
+InstructorPrompts:
+  instructor:
+    prompts:
+      system: |-
+        You are a large language model.
+        Your name is {name}
+      inputs: [name]
+      user: |-
+        Context:\ {context}
+        {question}
+        A:\ Let's think step by stepconda a
+      inputs: [context, question]
+    provider: anthropic 
+    config:
+      model: claude-3-haiku-20240307
+      max_tokens: 100
+      temperature: 0.8
+      top_p: 0.9
