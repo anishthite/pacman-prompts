@@ -1,4 +1,7 @@
-pyyaml
 openai
-posthog
 groq
+anthropic
+instructor
+pyyaml
+posthog
+pydantic

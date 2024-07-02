@@ -8,11 +8,11 @@ InstructorPrompts:
       user: |-
         Context:\ {context}
         {question}
-        A:\ Let's think step by step using our knowledge of famillies
+        A:\ Let's think step by step
       inputs: [context, question]
-    provider: groq
+    provider: anyscale
     config:
-      model: llama3-70b-8192
+      model: meta-llama/Meta-Llama-3-70B-Instruct
       max_tokens: 100
       temperature: 0.8
       top_p: 1.0

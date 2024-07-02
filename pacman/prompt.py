@@ -40,6 +40,10 @@ instructor_anyscale_client = instructor.patch(openai.OpenAI(
 
 instructor_groq_client = instructor.from_groq(groq_client, mode=instructor.Mode.TOOLS)
 
+groq_anyscale_model_id_map = {
+    "llama3-70b-8192": "meta-llama/Meta-Llama-3-70B-Instruct",
+    "mixtral-8x7b-32768": "mistralai/Mixtral-8x7B-Instruct-v0.1"
+}
 
 
 class Provider(Enum):
@@ -199,8 +203,14 @@ class ChatPrompt(Prompt):
                 )
             except Exception as e:
                 print("Groq rate limit, use anyscale", e)
+                # Use the model map for fallback to anyscale
+                anyscale_model_id = groq_anyscale_model_id_map.get(self.config.model, "meta-llama/Meta-Llama-3-70B-Instruct")
+                # Update config with the correct anyscale model
+                self.config.model = anyscale_model_id
+                print("model id updated", anyscale_model_id)
                 res = anyscale_client.chat.completions.create(
-                    messages=messages, **self.config.__dict__
+                    messages=messages,
+                    **self.config.__dict__
                 )
         return res
 
@@ -236,6 +246,9 @@ class InstuctorPrompt(ChatPrompt):
                 )
             except Exception as e:
                 print("Groq rate limit, use anyscale", e)
+                anyscale_model_id = groq_anyscale_model_id_map.get(self.config.model, "meta-llama/Meta-Llama-3-70B-Instruct")
+                print("model id updated", anyscale_model_id)
+                self.config.model = anyscale_model_id
                 res = instructor_anyscale_client.chat.completions.create(
                     messages=messages, response_model=response_model, **self.config.__dict__
                 )
