@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 setup(
   name = 'pacman-prompts',
   packages = find_packages(exclude=['examples']),
-  version = '2.2.1',
+  version = '2.2.2',
   license='MIT',
   description = 'Prompts As Code, man',
   long_description_content_type = 'text/markdown',
@@ -12,14 +12,17 @@ setup(
   url = 'https://github.com/anishthite/pacman',
   keywords = [
     'artificial intelligence',
-    'attention mechanism',
-    'image recognition'
+    'prompt engineering',
+    'prompt management'
   ],
   install_requires=[
-      'pyyaml',
       'openai',
+      'groq',
+      'anthropic',
+      'instructor',
+      'pyyaml',
       'posthog',
-      'groq'
+      'pydantic'
   ],
   setup_requires=[
   ],

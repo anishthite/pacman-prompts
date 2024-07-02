@@ -22,6 +22,10 @@ anthropic_client = anthropic.Anthropic(
     api_key=os.environ["ANTHROPIC_API_KEY"],
 )
 
+groq_client = Groq(
+    api_key=os.environ.get("GROQ_API_KEY"),
+)
+
 instructor_openai_client = instructor.patch(
     openai.OpenAI(api_key=os.environ["OPENAI_API_KEY"])
 )
@@ -34,9 +38,8 @@ instructor_anyscale_client = instructor.patch(openai.OpenAI(
     ), mode=instructor.Mode.JSON_SCHEMA,
 )
 
-groq_client = Groq(
-    api_key=os.environ.get("GROQ_API_KEY"),
-)
+instructor_groq_client = instructor.from_groq(groq_client, mode=instructor.Mode.TOOLS)
+
 
 
 class Provider(Enum):
@@ -188,11 +191,17 @@ class ChatPrompt(Prompt):
                     messages=messages, **self.config.__dict__
                 )
         elif self.provider == Provider.GROQ.value:
-            res = groq_client.chat.completions.create(
-                messages=messages,
-                **self.config.__dict__,
-                # stop='\n'
-            )
+            try:
+                res = groq_client.chat.completions.create(
+                    messages=messages,
+                    **self.config.__dict__,
+                    # stop='\n'
+                )
+            except Exception as e:
+                print("Groq rate limit, use anyscale", e)
+                res = anyscale_client.chat.completions.create(
+                    messages=messages, **self.config.__dict__
+                )
         return res
 
 
@@ -215,11 +224,21 @@ class InstuctorPrompt(ChatPrompt):
             res = instructor_anthropic_client.messages.create(
                 messages=messages, response_model=response_model, **self.config.__dict__
             )
-        
+
         if self.provider == Provider.ANYSCALE.value:
             res = instructor_anyscale_client.chat.completions.create(
                 messages=messages, response_model=response_model, **self.config.__dict__
             )
+        if self.provider == Provider.GROQ.value:
+            try:
+                res = instructor_groq_client.messages.create(
+                    messages=messages, response_model=response_model, **self.config.__dict__
+                )
+            except Exception as e:
+                print("Groq rate limit, use anyscale", e)
+                res = instructor_anyscale_client.chat.completions.create(
+                    messages=messages, response_model=response_model, **self.config.__dict__
+                )
 
         return res
 
