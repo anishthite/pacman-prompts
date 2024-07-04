@@ -37,22 +37,22 @@ instructor_groq_client = instructor.from_groq(groq_client, mode=instructor.Mode.
 try:
     logfire.instrument_openai(openai_client)
 except Exception as e:
-    print("Failed to instrument OpenAI client with Logfire.")
+    print("Failed to instrument OpenAI client with Logfire.", e)
 
 try:
     logfire.instrument_anthropic(anthropic_client)
 except Exception as e:
-    print("Failed to instrument Anthropic client with Logfire.")
+    print("Failed to instrument Anthropic client with Logfire.", e)
 
 try:
     logfire.instrument_openai(instructor_openai_client)
 except Exception as e:
-    print("Failed to instrument Instructor OpenAI client with Logfire.")
+    print("Failed to instrument Instructor OpenAI client with Logfire.", e)
 
 try:
     logfire.instrument_anthropic(instructor_anthropic_client)
 except Exception as e:
-    print("Failed to instrument Instructor Anthropic client with Logfire.")
+    print("Failed to instrument Instructor Anthropic client with Logfire.", e)
 
 
 groq_anyscale_model_id_map = {
