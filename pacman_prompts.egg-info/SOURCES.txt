@@ -2,6 +2,7 @@ README.md
 setup.py
 pacman/__init__.py
 pacman/file_utils.py
+pacman/models.py
 pacman/pacman.py
 pacman/prompt.py
 pacman_prompts.egg-info/PKG-INFO

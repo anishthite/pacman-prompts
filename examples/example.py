@@ -3,7 +3,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 import pacman.pacman as pacman
-
+import logfire
+import os
 # Initialize prompts
 prompts = pacman.load("./example.yml")
 
