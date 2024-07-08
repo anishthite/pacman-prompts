@@ -11,10 +11,12 @@ class PromptConfig:
 
 
 class Prompt:
-    def __init__(self, prompts, provider, config):
+    def __init__(self, prompts, provider, config, name):
         self.config = PromptConfig(config)
 
         self.provider = provider
+
+        self.name = name
 
         if type(prompts) == str:
             self.user_prompt = prompts
@@ -56,6 +58,13 @@ class Prompt:
 
         raise ValueError("Invalid number of arguments for __call__ method.")
 
+    def log_call(self, model_name, prompt, response, response_model=None):
+        with logfire.span(f'{model_name} {self.name} call') as span:
+            logfire.info('Model call information')
+            span.set_attribute('model_name', model_name)
+            span.set_attribute('prompt', prompt)
+            span.set_attribute('response', response)
+            span.set_attribute('response model', response_model)
 
 def load_prompt(loaded_file):
     prompt = Prompt(**loaded_file)
@@ -127,10 +136,6 @@ class ChatPrompt(Prompt):
                 **self.config.__dict__,
                 # stop='\n'
             )
-        elif self.provider == Provider.ANYSCALE.value:
-            res = anyscale_client.chat.completions.create(
-                messages=messages, **self.config.__dict__
-            )
         elif self.provider == Provider.ANTHROPIC.value:
             if messages and messages[0]["role"] == "system":
                 msgs = []
@@ -144,6 +149,11 @@ class ChatPrompt(Prompt):
                 res = anthropic_client.messages.create(
                     messages=messages, **self.config.__dict__
                 )
+        elif self.provider == Provider.ANYSCALE.value:
+            res = anyscale_client.chat.completions.create(
+                messages=messages, **self.config.__dict__
+            )
+            self.log_call(self.config.model, messages, res)
         elif self.provider == Provider.GROQ.value:
             try:
                 res = groq_client.chat.completions.create(
@@ -151,6 +161,7 @@ class ChatPrompt(Prompt):
                     **self.config.__dict__,
                     # stop='\n'
                 )
+                self.log_call(self.config.model, messages, res)
             except Exception as e:
                 print("Groq rate limit, use anyscale", e)
                 # Use the model map for fallback to anyscale
@@ -162,6 +173,7 @@ class ChatPrompt(Prompt):
                     messages=messages,
                     **self.config.__dict__
                 )
+                self.log_call(self.config.model, messages, res)
         return res
 
 
@@ -174,6 +186,7 @@ class InstuctorPrompt(ChatPrompt):
         if kwargs.get("debug", True):
             print("complete prompt:")
             print(messages)
+
 
         if self.provider == Provider.OPENAI.value:
             res = instructor_openai_client.chat.completions.create(
@@ -189,11 +202,13 @@ class InstuctorPrompt(ChatPrompt):
             res = instructor_anyscale_client.chat.completions.create(
                 messages=messages, response_model=response_model, **self.config.__dict__
             )
+            self.log_call(self.config.model, messages, res, response_model)
         if self.provider == Provider.GROQ.value:
             try:
                 res = instructor_groq_client.messages.create(
                     messages=messages, response_model=response_model, **self.config.__dict__
                 )
+                self.log_call(self.config.model, messages, res, response_model)
             except Exception as e:
                 print("Groq rate limit, use anyscale", e)
                 anyscale_model_id = groq_anyscale_model_id_map.get(self.config.model, "meta-llama/Meta-Llama-3-70B-Instruct")
@@ -202,8 +217,9 @@ class InstuctorPrompt(ChatPrompt):
                 res = instructor_anyscale_client.chat.completions.create(
                     messages=messages, response_model=response_model, **self.config.__dict__
                 )
-
+                self.log_call(self.config.model, messages, res, response_model)
         return res
+
 
     def __call__(
         self, *args, system_inputs=None, user_inputs=None, response_model=None, **kwargs

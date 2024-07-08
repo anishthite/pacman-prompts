@@ -11,27 +11,27 @@ def load(yaml_path):
     if "Prompts" in parsed_file:
         for name, config in parsed_file["Prompts"].items():
             prompt_collection[name] = Prompt(
-                config["prompts"], config["provider"], config["config"]
+                config["prompts"], config["provider"], config["config"], name
             )
     if "ChatPrompts" in parsed_file:
         for name, config in parsed_file["ChatPrompts"].items():
             if "prompts" in config:
                 prompt_collection[name] = ChatPrompt(
-                    config["prompts"], config["provider"], config["config"]
+                    config["prompts"], config["provider"], config["config"], name
                 )
             else:
                 prompt_collection[name] = ChatPrompt(
-                    config["prompt"], config["provider"], config["config"]
+                    config["prompt"], config["provider"], config["config"], name
                 )
     if "InstructorPrompts" in parsed_file:
         for name, config in parsed_file["InstructorPrompts"].items():
             if "prompts" in config:
                 prompt_collection[name] = InstuctorPrompt(
-                    config["prompts"], config["provider"], config["config"]
+                    config["prompts"], config["provider"], config["config"], name
                 )
             else:
                 prompt_collection[name] = ChatPrompt(
-                    config["prompt"], config["provider"], config["config"]
+                    config["prompt"], config["provider"], config["config"], name
                 )
 
     return prompt_collection
