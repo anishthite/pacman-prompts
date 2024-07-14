@@ -55,6 +55,18 @@ except Exception as e:
     print("Failed to instrument Instructor Anthropic client with Logfire.", e)
 
 
+try:
+    logfire.instrument_openai(anyscale_client)
+except Exception as e:
+    print("Failed to instrument Anyscale OpenAI client with Logfire.", e)
+
+try:
+    logfire.instrument_openai(instructor_anyscale_client)
+except Exception as e:
+    print("Failed to instrument Instructor Anyscale OpenAI client with Logfire.", e)
+
+##can't do GROQ
+
 groq_anyscale_model_id_map = {
     "llama3-70b-8192": "meta-llama/Meta-Llama-3-70B-Instruct",
     "mixtral-8x7b-32768": "mistralai/Mixtral-8x7B-Instruct-v0.1"

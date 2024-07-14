@@ -173,7 +173,6 @@ class ChatPrompt(Prompt):
                     messages=messages,
                     **self.config.__dict__
                 )
-                self.log_call(self.config.model, messages, res)
         return res
 
 
@@ -217,7 +216,6 @@ class InstuctorPrompt(ChatPrompt):
                 res = instructor_anyscale_client.chat.completions.create(
                     messages=messages, response_model=response_model, **self.config.__dict__
                 )
-                self.log_call(self.config.model, messages, res, response_model)
         return res
 
 
