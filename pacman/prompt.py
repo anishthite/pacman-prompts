@@ -154,6 +154,13 @@ class ChatPrompt(Prompt):
                 messages=messages, **self.config.__dict__
             )
             self.log_call(self.config.model, messages, res)
+
+        elif self.provider == Provider.FIREWORKS.value:
+            res = fireworks_client.chat.completions.create(
+                messages=messages, **self.config.__dict__
+            )
+            # self.log_call(self.config.model, messages, res)
+
         elif self.provider == Provider.GROQ.value:
             try:
                 res = groq_client.chat.completions.create(
@@ -202,6 +209,13 @@ class InstuctorPrompt(ChatPrompt):
                 messages=messages, response_model=response_model, **self.config.__dict__
             )
             self.log_call(self.config.model, messages, res, response_model)
+
+        if self.provider == Provider.FIREWORKS.value:
+            res = instructor_fireworks_client.chat.completions.create(
+                messages=messages, response_model=response_model, **self.config.__dict__
+            )
+            # self.log_call(self.config.model, messages, res, response_model)
+
         if self.provider == Provider.GROQ.value:
             try:
                 res = instructor_groq_client.messages.create(

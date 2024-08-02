@@ -18,6 +18,10 @@ anyscale_client = openai.OpenAI(
     base_url="https://api.endpoints.anyscale.com/v1",
     api_key=os.environ["MISTRAL_API_KEY"],
 )
+fireworks_client = openai.OpenAI(
+    base_url="https://api.fireworks.ai/inference/v1",
+    api_key=os.environ["FIREWORKS_API_KEY"],
+)
 groq_client = Groq(
     api_key=os.environ.get("GROQ_API_KEY"),
 )
@@ -31,6 +35,13 @@ instructor_anyscale_client = instructor.patch(openai.OpenAI(
         api_key=os.environ["MISTRAL_API_KEY"],
     ), mode=instructor.Mode.JSON_SCHEMA,
 )
+
+instructor_fireworks_client = instructor.patch( openai.OpenAI(
+    base_url="https://api.fireworks.ai/inference/v1",
+    api_key=os.environ["FIREWORKS_API_KEY"],
+), mode=instructor.Mode.JSON_SCHEMA,
+)
+
 instructor_groq_client = instructor.from_groq(groq_client, mode=instructor.Mode.TOOLS)
 
 
@@ -65,6 +76,18 @@ try:
 except Exception as e:
     print("Failed to instrument Instructor Anyscale OpenAI client with Logfire.", e)
 
+
+try:
+    logfire.instrument_openai(fireworks_client)
+except Exception as e:
+    print("Failed to instrument Firworks client with Logfire.", e)
+
+
+try:
+    logfire.instrument_openai(instructor_fireworks_client)
+except Exception as e:
+    print("Failed to instrument Instructor Fireworks client with Logfire.", e)
+
 ##can't do GROQ
 
 groq_anyscale_model_id_map = {
@@ -77,6 +100,7 @@ groq_anyscale_model_id_map = {
 class Provider(Enum):
     OPENAI = "openai"
     ANYSCALE = "anyscale"
+    FIREWORKS = "fireworks"
     ANTHROPIC = "anthropic"
     GROQ = "groq"
 
