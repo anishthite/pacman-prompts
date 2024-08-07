@@ -2,6 +2,7 @@
 import os
 from pacman.models import *
 
+FALLBACK_MODEL = "gpt-4o-mini"
 
 class PromptConfig:
     def __init__(self, config):
@@ -103,29 +104,6 @@ class ChatPrompt(Prompt):
             system_inputs=system_inputs, user_inputs=user_inputs, **kwargs
         )
 
-        # TODO: fix the inut s . its flat
-        # TODO: make this all creatable inside the yaml config
-        # TODO: messages is a reserved kwarg, so dont put it in a prompt
-        # run in language model
-
-        # if self.config['stream'] == True:
-        #     try:
-        #         resp = ''
-        #         for chunk in openai.ChatCompletion.create(
-        #             model="gpt-3.5-turbo",
-        #             messages=messages,
-        #             **self.config.__dict__,
-        #         ):
-        #             content = chunk["choices"][0].get("delta", {}).get("content")
-        #             if content is not None:
-        #                 print(content, end='')
-        #                 resp += content
-        #                 yield f'{content}'
-        #     except Exception as e:
-        #         print(e)
-        #         return str(e)
-        # else:
-
         if kwargs.get("debug", True):
             print("complete prompt:")
             print(messages)
@@ -150,15 +128,29 @@ class ChatPrompt(Prompt):
                     messages=messages, **self.config.__dict__
                 )
         elif self.provider == Provider.ANYSCALE.value:
-            res = anyscale_client.chat.completions.create(
-                messages=messages, **self.config.__dict__
-            )
-            self.log_call(self.config.model, messages, res)
+            try:
+                res = anyscale_client.chat.completions.create(
+                    messages=messages, **self.config.__dict__
+                )
+                self.log_call(self.config.model, messages, res)
+            except Exception as e:
+                print("Anyscale failed, fallback to OpenAI", e)
+                self.config.model = FALLBACK_MODEL  # Set fallback model
+                res = openai_client.chat.completions.create(
+                    messages=messages, **self.config.__dict__
+                )
 
         elif self.provider == Provider.FIREWORKS.value:
-            res = fireworks_client.chat.completions.create(
-                messages=messages, **self.config.__dict__
-            )
+            try:
+                res = fireworks_client.chat.completions.create(
+                    messages=messages, **self.config.__dict__
+                )
+            except Exception as e:
+                print("Fireworks failed, fallback to OpenAI", e)
+                self.config.model = FALLBACK_MODEL  # Set fallback model
+                res = openai_client.chat.completions.create(
+                    messages=messages, **self.config.__dict__
+                )
             # self.log_call(self.config.model, messages, res)
 
         elif self.provider == Provider.GROQ.value:
@@ -170,15 +162,11 @@ class ChatPrompt(Prompt):
                 )
                 self.log_call(self.config.model, messages, res)
             except Exception as e:
-                print("Groq rate limit, use anyscale", e)
+                print("Groq rate limit, fallback to openai", e)
                 # Use the model map for fallback to anyscale
-                anyscale_model_id = groq_anyscale_model_id_map.get(self.config.model, "meta-llama/Meta-Llama-3-70B-Instruct")
-                # Update config with the correct anyscale model
-                self.config.model = anyscale_model_id
-                print("model id updated", anyscale_model_id)
-                res = anyscale_client.chat.completions.create(
-                    messages=messages,
-                    **self.config.__dict__
+                self.config.model = FALLBACK_MODEL  # Set fallback model
+                res = openai_client.chat.completions.create(
+                    messages=messages, **self.config.__dict__
                 )
         return res
 
@@ -205,16 +193,31 @@ class InstuctorPrompt(ChatPrompt):
             )
 
         if self.provider == Provider.ANYSCALE.value:
-            res = instructor_anyscale_client.chat.completions.create(
-                messages=messages, response_model=response_model, **self.config.__dict__
-            )
-            self.log_call(self.config.model, messages, res, response_model)
+            try:
+                res = instructor_anyscale_client.chat.completions.create(
+                    messages=messages, response_model=response_model, **self.config.__dict__
+                )
+                self.log_call(self.config.model, messages, res, response_model)
+            except Exception as e:
+                print("Anyscale failed, fallback to OpenAI", e)
+                self.config.model = FALLBACK_MODEL  # Set fallback model
+                res = instructor_openai_client.chat.completions.create(
+                    messages=messages, response_model=response_model, **self.config.__dict__
+                )
 
         if self.provider == Provider.FIREWORKS.value:
-            res = instructor_fireworks_client.chat.completions.create(
-                messages=messages, response_model=response_model, **self.config.__dict__
-            )
-            # self.log_call(self.config.model, messages, res, response_model)
+            try:
+                res = instructor_fireworks_client.chat.completions.create(
+                    messages=messages, response_model=response_model, **self.config.__dict__
+                )
+                # self.log_call(self.config.model, messages, res, response_model)
+            except Exception as e:
+                print("Fireworks failed, fallback to OpenAI", e)
+                self.config.model = FALLBACK_MODEL  # Set fallback model
+                res = instructor_openai_client.chat.completions.create(
+                    messages=messages, response_model=response_model, **self.config.__dict__
+                )
+                # self.log_call(self.config.model, messages, res, response_model)
 
         if self.provider == Provider.GROQ.value:
             try:
@@ -223,11 +226,9 @@ class InstuctorPrompt(ChatPrompt):
                 )
                 self.log_call(self.config.model, messages, res, response_model)
             except Exception as e:
-                print("Groq rate limit, use anyscale", e)
-                anyscale_model_id = groq_anyscale_model_id_map.get(self.config.model, "meta-llama/Meta-Llama-3-70B-Instruct")
-                print("model id updated", anyscale_model_id)
-                self.config.model = anyscale_model_id
-                res = instructor_anyscale_client.chat.completions.create(
+                print("Groq rate limit, fallback openai", e)
+                self.config.model = FALLBACK_MODEL  # Set fallback model
+                res = instructor_openai_client.chat.completions.create(
                     messages=messages, response_model=response_model, **self.config.__dict__
                 )
         return res
