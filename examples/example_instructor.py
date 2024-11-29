@@ -31,7 +31,7 @@ def QAchain(context, question):
         messages=msgs,
         few_shot=True,
         debug=True,
-        response_model=Output,
+        response_format=Output,
     )
     return response_model
 

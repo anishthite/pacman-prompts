@@ -15,19 +15,19 @@ InstructorPrompts:
       model: gpt-4o-mini
       max_tokens: 100
       temperature: 0.8
-      response_format:
-        type: json_schema
-        json_schema:
-          name: math_reasoning
-          schema:
-            type: object
-            properties:
-              reasoning:
-                type: string
-              age:
-                type: integer
-            required:
-              - reasoning
-              - age
-            additionalProperties: false
+      # response_format:
+      #   type: json_schema
+      #   json_schema:
+      #     name: math_reasoning
+      #     schema:
+      #       type: object
+      #       properties:
+      #         reasoning:
+      #           type: string
+      #         age:
+      #           type: integer
+      #       required:
+      #         - reasoning
+      #         - age
+      #       additionalProperties: false
       top_p: 0.9
